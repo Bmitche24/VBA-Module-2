@@ -1,0 +1,155 @@
+Sub Stocks()
+
+' Loop / Iterate Through All Worksheets
+    For Each ws In Worksheets
+
+'Variable for ticker symbol
+Dim ticker_symbol As String
+
+'Variable for open & closed yearly change
+Dim yearly_change As Double
+yearly_change = 0
+
+Dim open_y As Double
+Dim close_y As Double
+open_y = 0OSU
+
+'Variable for percent change
+Dim percent_change As Double
+percent_change = 0
+
+'Variable for total stock volume
+Dim total_stock_volume As Double
+
+'Variable for Greatest Increase & Decrease
+Dim GreatestIncrease As Double
+        GreatestIncrease = 0
+Dim GreatestDecrease As Double
+        GreatestDecrease = 0
+Dim GreatestTotalVolume As Double
+        GreatestTotalVolume = 0
+
+'Count to last row
+LastRow = Cells(Rows.Count, 1).End(xlUp).Row
+
+'Location for summary of results
+Dim Summary_Table_Row As Integer
+  Summary_Table_Row = 2
+  
+'Loop through all ticker symbols
+For i = 2 To LastRow
+
+'Check to see if ticker symbol changed
+If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+ticker_symbol = Cells(i, 1).Value
+percent_change = (close_y - open_y) / close_y
+
+Else: Cells(i + 1, 1).Value = Cells(i, 1).Value
+close_y = Cells(i + 1, 6).Value
+
+End If
+
+'Yearly change variables
+If open_y = 0 Then
+open_y = Cells(i, 3).Value
+close_y = Cells(254, 6).Value
+
+End If
+
+If Cells(i, 1).Value = Cells(i + 1, 1).Value Then
+        'add stock volume to vol
+total_stock_volume = total_stock_volume + Cells(i, 7).Value
+        
+End If
+
+'Calculate Yearly Change
+If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+close_y = Cells(i, 6).Value
+yearly_change = close_y - open_y
+
+'Making Column K %
+Range("K" & Summary_Table_Row).NumberFormat = "0.00%"
+
+'Enter ticker symbol in summary table
+Range("I" & Summary_Table_Row).Value = ticker_symbol
+
+'Enter yearly change amount to summary table
+Range("J" & Summary_Table_Row).Value = yearly_change
+
+'Enter percent change amount to summary table
+Range("K" & Summary_Table_Row).Value = percent_change
+
+'Enter total stock volume amount to summary table
+Range("L" & Summary_Table_Row).Value = total_stock_volume
+
+' Add one to the summary table row
+Summary_Table_Row = Summary_Table_Row + 1
+
+yearly_change = 0
+open_y = 0
+total_stock_volume = 0
+
+Else
+yearly_change = yearly_change + Cells(i, 3).Value - Cells(i, 6).Value
+
+End If
+
+Next i
+
+' Greatest % Increase, Greatest % Decrease and Greatest Total Volume
+            LastRow = Cells(Rows.Count, 11).End(xlUp).Row
+        
+            ' Start Loop For Final Results
+            For i = 2 To LastRow
+                If Range("K" & i).Value > Range("Q2").Value Then
+                    Range("Q2").Value = Range("K" & i).Value
+                    Range("P2").Value = Range("I" & i).Value
+                End If
+
+                If Range("K" & i).Value < Range("Q3").Value Then
+                    Range("Q3").Value = Range("K" & i).Value
+                    Range("P3").Value = Range("I" & i).Value
+                End If
+
+                If Range("L" & i).Value > Range("Q4").Value Then
+                    Range("Q4").Value = Range("L" & i).Value
+                    Range("P4").Value = Range("I" & i).Value
+                End If
+
+            Next i
+        ' Format Double To Include % Symbol And Two Decimal Places
+            Range("Q2").NumberFormat = "0.00%"
+            Range("Q3").NumberFormat = "0.00%"
+            
+        ' Format Table Columns To Auto Fit
+        Columns("I:Q").AutoFit
+
+'format columns colors
+    Dim rg As Range
+    Dim g As Long
+    Dim c As Long
+    Dim color_cell As Range
+    
+    Set rg = Range("J2", Range("J2").End(xlDown))
+    c = rg.Cells.Count
+    
+    For g = 1 To c
+    Set color_cell = rg(g)
+    Select Case color_cell
+        Case Is >= 0
+            With color_cell
+                .Interior.Color = vbGreen
+            End With
+        Case Is < 0
+            With color_cell
+                .Interior.Color = vbRed
+            End With
+              
+   End Select
+       
+   Next g
+    
+Next ws
+
+
+End Sub
